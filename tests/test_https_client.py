@@ -51,7 +51,7 @@ async def test_search_subtitles(client):
     assert route.called
     assert (
         route.calls.last.request.url.query.decode("utf-8")
-        == "q=test&pos=0&cnt=1&is_file=1&no_muxer=0&filelist=0"
+        == "token=test_token&q=test&pos=0&cnt=1&is_file=1&no_muxer=0&filelist=0"
     )
     assert result == mock_response
 
@@ -75,7 +75,7 @@ async def test_get_subtitle_detail(client):
     result = await client.get_subtitle_detail(123)
 
     assert route.called
-    assert route.calls.last.request.url.query.decode("utf-8") == "id=123"
+    assert route.calls.last.request.url.query.decode("utf-8") == "token=test_token&id=123"
     assert result == mock_response
 
 
@@ -98,7 +98,7 @@ async def test_get_similar_subtitles(client):
     result = await client.get_similar_subtitles(123)
 
     assert route.called
-    assert route.calls.last.request.url.query.decode("utf-8") == "id=123"
+    assert route.calls.last.request.url.query.decode("utf-8") == "token=test_token&id=123"
     assert result == mock_response
 
 

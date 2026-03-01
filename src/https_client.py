@@ -23,6 +23,7 @@ class AssrtClient:
                 "ASSRT API Token is required. Set ASSRT_API_TOKEN environment variable or pass token to AssrtClient."
             )
 
+        self._token = token
         self.base_url = "https://api.assrt.net"
         self.client = httpx.AsyncClient(
             base_url=self.base_url, headers={"Authorization": f"Bearer {token}"}
@@ -31,6 +32,7 @@ class AssrtClient:
     async def _request(
         self, method: str, endpoint: str, params: typing.Optional[dict] = None
     ) -> dict:
+        params = {"token": self._token, **(params or {})}
         response = await self.client.request(method, endpoint, params=params)
         response.raise_for_status()
         data = response.json()
