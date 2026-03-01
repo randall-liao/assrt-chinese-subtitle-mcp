@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "mcp server for assrt.net"
 requires-python = ">=3.14"
 dependencies = [
+    "httpx>=0.28.1",
     "mcp>=1.26.0",
+    "python-dotenv>=1.2.1",
 ]
 
 [dependency-groups]
@@ -12,5 +14,7 @@ dev = [
     "pre-commit>=4.5.1",
     "pyright>=1.1.408",
     "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "respx>=0.22.0",
     "ruff>=0.15.4",
 ]
