@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from https_client import AssrtClient, AssrtAPIError
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def mock_env(monkeypatch):
     monkeypatch.setenv("ASSRT_API_TOKEN", "test_token")
 
