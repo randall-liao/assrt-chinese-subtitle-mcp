@@ -1,0 +1,16 @@
+[project]
+name = "assrt-chinese-subtitle-mcp"
+version = "0.1.0"
+description = "mcp server for assrt.net"
+requires-python = ">=3.14"
+dependencies = [
+    "mcp>=1.26.0",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.5.1",
+    "pyright>=1.1.408",
+    "pytest>=9.0.2",
+    "ruff>=0.15.4",
+]
