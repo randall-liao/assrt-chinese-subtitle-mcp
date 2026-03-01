@@ -1,8 +1,8 @@
-# assrt-chinese-subtitle-mcp
+# 射手网（伪）MCP服务
 
 [English Documentation](README.en.md) | [英文文档](README.en.md)
 
-给 assrt.net 写的 MCP (Model Context Protocol) 服务器。
+给射手网（伪） assrt.net 写的 MCP 服务器。
 
 ## 项目结构
 
