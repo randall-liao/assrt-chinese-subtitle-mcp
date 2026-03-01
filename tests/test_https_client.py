@@ -138,4 +138,47 @@ async def test_api_error(client):
 
     assert route.called
     assert exc_info.value.status_code == 101
-    assert "status code: 101" in exc_info.value.message
+    assert exc_info.value.message == "length of keyword must be longer than 3"
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_authorization_header(client):
+    mock_response = {
+        "status": 0,
+        "user": {"result": "succeed", "action": "quota", "quota": 20},
+    }
+    route = respx.get("https://api.assrt.net/v1/user/quota").mock(
+        return_value=httpx.Response(200, json=mock_response)
+    )
+    await client.get_user_quota()
+    assert route.called
+    assert route.calls.last.request.headers["Authorization"] == "Bearer test_token"
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_api_error_status_1(client):
+    mock_response = {"status": 1, "msg": "no such user"}
+    route = respx.get("https://api.assrt.net/v1/user/quota").mock(
+        return_value=httpx.Response(200, json=mock_response)
+    )
+    with pytest.raises(AssrtAPIError) as exc_info:
+        await client.get_user_quota()
+    assert route.called
+    assert exc_info.value.status_code == 1
+    assert exc_info.value.message == "no such user"
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_api_error_status_20001(client):
+    mock_response = {"status": 20001, "msg": "invalid token"}
+    route = respx.get("https://api.assrt.net/v1/user/quota").mock(
+        return_value=httpx.Response(200, json=mock_response)
+    )
+    with pytest.raises(AssrtAPIError) as exc_info:
+        await client.get_user_quota()
+    assert route.called
+    assert exc_info.value.status_code == 20001
+    assert exc_info.value.message == "invalid token"

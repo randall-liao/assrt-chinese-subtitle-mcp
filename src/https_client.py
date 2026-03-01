@@ -30,15 +30,23 @@ class AssrtClient:
         )
 
     async def _request(
-        self, method: str, endpoint: str, params: typing.Optional[dict] = None
-    ) -> dict:
+        self,
+        method: str,
+        endpoint: str,
+        params: typing.Optional[dict[str, typing.Any]] = None,
+    ) -> dict[str, typing.Any]:
         params = {"token": self._token, **(params or {})}
         response = await self.client.request(method, endpoint, params=params)
         response.raise_for_status()
         data = response.json()
         status = data.get("status")
         if status != 0:
-            raise AssrtAPIError(status, f"API error, status code: {status}")
+            error_msg = (
+                data.get("msg")
+                or data.get("errmsg")
+                or f"API error, status code: {status}"
+            )
+            raise AssrtAPIError(status, error_msg)
         return data
 
     async def search_subtitles(
@@ -49,7 +57,7 @@ class AssrtClient:
         is_file: int = 0,
         no_muxer: int = 0,
         filelist: int = 0,
-    ) -> dict:
+    ) -> dict[str, typing.Any]:
         """
         Search for subtitles. `q` must be at least 3 characters long.
         """
@@ -63,14 +71,14 @@ class AssrtClient:
         }
         return await self._request("GET", "/v1/sub/search", params)
 
-    async def get_subtitle_detail(self, id: int) -> dict:
+    async def get_subtitle_detail(self, id: int) -> dict[str, typing.Any]:
         """
         Get subtitle detailed information by subtitle ID.
         """
         params = {"id": id}
         return await self._request("GET", "/v1/sub/detail", params)
 
-    async def get_similar_subtitles(self, id: int) -> dict:
+    async def get_similar_subtitles(self, id: int) -> dict[str, typing.Any]:
         """
         Get similar subtitles.
         """
