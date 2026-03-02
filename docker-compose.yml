@@ -1,0 +1,7 @@
+services:
+  assrt-mcp:
+    build: .
+    env_file:
+      - .env
+    stdin_open: true # Required for MCP's stdio transport
+    tty: false # Required so Docker doesn't inject escape sequences
