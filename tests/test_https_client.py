@@ -182,3 +182,74 @@ async def test_api_error_status_20001(client):
     assert route.called
     assert exc_info.value.status_code == 20001
     assert exc_info.value.message == "invalid token"
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_iter_search_subtitles(client):
+    mock_response_1 = {
+        "status": 0,
+        "sub": {
+            "subs": [{"id": 1}],
+        },
+    }
+    mock_response_2 = {
+        "status": 0,
+        "sub": {
+            "subs": [],
+        },
+    }
+
+    route = respx.get("https://api.assrt.net/v1/sub/search").mock(
+        side_effect=[
+            httpx.Response(200, json=mock_response_1),
+            httpx.Response(200, json=mock_response_2),
+        ]
+    )
+
+    results = []
+    async for sub in client.iter_search_subtitles("test"):
+        results.append(sub)
+
+    assert len(results) == 1
+    assert results[0] == {"id": 1}
+    assert route.call_count == 1
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_iter_search_subtitles_realistic(client):
+    from test_data import SEARCH_SUBTITLES_RESPONSE
+
+    # We will mock the first page to return the realistic response,
+    # and the second page to return an empty list of subs to terminate the iterator.
+    mock_response_empty = {
+        "status": 0,
+        "sub": {
+            "subs": [],
+            "action": "search",
+            "keyword": "star wars",
+            "result": "succeed",
+        },
+    }
+
+    route = respx.get("https://api.assrt.net/v1/sub/search").mock(
+        side_effect=[
+            httpx.Response(200, json=SEARCH_SUBTITLES_RESPONSE),
+            httpx.Response(200, json=mock_response_empty),
+        ]
+    )
+
+    results = []
+    async for sub in client.iter_search_subtitles("star wars"):
+        results.append(sub)
+
+    assert len(results) == 15
+    assert (
+        results[0]["native_name"] == "安多.第二季.Andor.S02.2160p.DSNP.WEB-DL.适配HDR"
+    )
+    assert results[0]["id"] == 710788
+
+    # The iterator fetched 15 items in the first page, so it makes a second request
+    # which returns 0 items and terminates.
+    assert route.call_count == 2

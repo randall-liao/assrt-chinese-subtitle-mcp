@@ -71,6 +71,37 @@ class AssrtClient:
         }
         return await self._request("GET", "/v1/sub/search", params)
 
+    async def iter_search_subtitles(
+        self,
+        q: str,
+        is_file: int = 0,
+        no_muxer: int = 0,
+        filelist: int = 0,
+    ) -> typing.AsyncIterator[dict[str, typing.Any]]:
+        """
+        Return an async iterator that automatically paginates through search results.
+        """
+        pos = 0
+        cnt = 15
+        while True:
+            response = await self.search_subtitles(
+                q=q,
+                pos=pos,
+                cnt=cnt,
+                is_file=is_file,
+                no_muxer=no_muxer,
+                filelist=filelist,
+            )
+
+            subs = response.get("sub", {}).get("subs", [])
+            for sub in subs:
+                yield sub
+
+            if len(subs) < cnt:
+                break
+
+            pos += cnt
+
     async def get_subtitle_detail(self, id: int) -> dict[str, typing.Any]:
         """
         Get subtitle detailed information by subtitle ID.
